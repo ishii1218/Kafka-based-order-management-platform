@@ -1,0 +1,74 @@
+<mxfile host="app.diagrams.net" modified="2026-09-18T00:00:00.000Z" agent="Codex" version="24.7.17">
+  <diagram id="kafka-order-architecture" name="Kafka Order Analytics Architecture">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="Kafka Avro Order Analytics — Architecture and Evidence Flow" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=24;fontStyle=1;fontColor=#172554;" vertex="1" parent="1">
+          <mxGeometry x="300" y="20" width="1000" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="docker" value="Docker Compose Environment" style="swimlane;html=1;rounded=1;startSize=36;horizontal=1;fillColor=#f8fafc;strokeColor=#64748b;fontStyle=1;fontSize=16;pointerEvents=0;" vertex="1" parent="1">
+          <mxGeometry x="20" y="90" width="1560" height="560" as="geometry"/>
+        </mxCell>
+        <mxCell id="producer" value="&lt;b&gt;Order Producer&lt;/b&gt;&lt;br&gt;10 random orders&lt;br&gt;+ 3 failure scenarios" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#2563eb;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="50" y="250" width="160" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="encoder" value="&lt;b&gt;Avro Encoder&lt;/b&gt;&lt;br&gt;fastavro&lt;br&gt;order.avsc" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#2563eb;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="250" y="250" width="150" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="orders" value="&lt;b&gt;Kafka: orders&lt;/b&gt;&lt;br&gt;3 partitions&lt;br&gt;key = orderId" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="440" y="240" width="150" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="consumer" value="&lt;b&gt;Analytics Consumer&lt;/b&gt;&lt;br&gt;Avro decode&lt;br&gt;consumer group" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#16a34a;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="630" y="250" width="160" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="decision" value="Processing&lt;br&gt;result?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#f8fafc;strokeColor=#475569;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="840" y="245" width="140" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="average" value="&lt;b&gt;Running Aggregation&lt;/b&gt;&lt;br&gt;count + total&lt;br&gt;average = total / count" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#16a34a;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="130" width="180" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="retry" value="&lt;b&gt;Retry Engine&lt;/b&gt;&lt;br&gt;0.5s → 1s → 2s&lt;br&gt;maximum 3 retries" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffedd5;strokeColor=#ea580c;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="270" width="180" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="failedEncoder" value="&lt;b&gt;FailedOrder Encoder&lt;/b&gt;&lt;br&gt;original order + error&lt;br&gt;retry count + timestamp" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#dc2626;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="440" width="180" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="commit" value="&lt;b&gt;Manual Offset Commit&lt;/b&gt;&lt;br&gt;after success or&lt;br&gt;acknowledged DLQ write" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dcfce7;strokeColor=#16a34a;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="150" width="180" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="dlq" value="&lt;b&gt;Kafka: orders-dlq&lt;/b&gt;&lt;br&gt;Avro failed records&lt;br&gt;1 partition" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;fillColor=#fef3c7;strokeColor=#d97706;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1280" y="430" width="170" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="monitor" value="&lt;b&gt;DLQ Consumer&lt;/b&gt;&lt;br&gt;Displays failed records&lt;br&gt;DLQ RECEIVED" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fee2e2;strokeColor=#dc2626;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1480" y="445" width="90" height="90" as="geometry"/>
+        </mxCell>
+        <mxCell id="evidence" value="&lt;b&gt;REAL EVIDENCE&lt;/b&gt;&lt;br&gt;PRODUCED · PROCESSED · runningAverage&lt;br&gt;RETRY · DLQ · DLQ RECEIVED · 8 tests passed" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e8ff;strokeColor=#9333ea;strokeWidth=2;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="500" y="700" width="600" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="git" value="&lt;b&gt;Git Evidence&lt;/b&gt;&lt;br&gt;main branch&lt;br&gt;commit history" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0e7ff;strokeColor=#4f46e5;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1170" y="710" width="160" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="tests" value="&lt;b&gt;Test Evidence&lt;/b&gt;&lt;br&gt;8 passed" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0e7ff;strokeColor=#4f46e5;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1390" y="710" width="150" height="80" as="geometry"/>
+        </mxCell>
+        <mxCell id="e1" value="Python order" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" edge="1" source="producer" target="encoder" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e2" value="Avro binary" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" edge="1" source="encoder" target="orders" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e3" value="poll by offset" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" edge="1" source="orders" target="consumer" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4" value="validate" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;" edge="1" source="consumer" target="decision" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e5" value="success" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;strokeColor=#16a34a;" edge="1" source="decision" target="average" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e6" value="commit" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;strokeColor=#16a34a;" edge="1" source="average" target="commit" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e7" value="temporary" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;strokeColor=#ea580c;" edge="1" source="decision" target="retry" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e8" value="retry" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;strokeColor=#ea580c;" edge="1" source="retry" target="decision" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e9" value="exhausted" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;strokeColor=#dc2626;" edge="1" source="retry" target="failedEncoder" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e10" value="permanent" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;strokeColor=#dc2626;" edge="1" source="decision" target="failedEncoder" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e11" value="Avro failure" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;strokeColor=#dc2626;" edge="1" source="failedEncoder" target="dlq" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e12" value="monitor" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;strokeColor=#dc2626;" edge="1" source="dlq" target="monitor" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e13" value="after DLQ ack" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;strokeColor=#16a34a;" edge="1" source="failedEncoder" target="commit" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e14" value="logs" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;dashed=1;strokeColor=#9333ea;" edge="1" source="consumer" target="evidence" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e15" value="verified by" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;dashed=1;strokeColor=#4f46e5;" edge="1" source="git" target="evidence" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e16" value="verified by" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=classic;dashed=1;strokeColor=#4f46e5;" edge="1" source="tests" target="evidence" parent="1"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

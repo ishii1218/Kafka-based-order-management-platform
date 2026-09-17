@@ -1,0 +1,40 @@
+flowchart LR
+  Presenter(["Student / Demo Operator"])
+  subgraph Docker["Docker Compose Environment"]
+    Producer["Order Producer<br/>10 random orders + 3 failure cases"]
+    Encoder["Avro Encoder<br/>fastavro + order.avsc"]
+    Orders[("Kafka Topic: orders<br/>3 partitions")]
+    Decoder["Avro Decoder<br/>Reconstruct order record"]
+    Processor["Analytics Consumer<br/>group: order-analytics-v1"]
+    Validate{"Processing result?"}
+    Average["Running Aggregation<br/>count + total<br/>average = total / count"]
+    Retry["Retry Engine<br/>bounded exponential backoff<br/>0.5s, 1s, 2s"]
+    DLQEncode["FailedOrder Avro Encoder<br/>error + retry metadata"]
+    DLQ[("Kafka Topic: orders-dlq<br/>1 partition")]
+    Monitor["DLQ Consumer<br/>failure monitor"]
+    Commit["Manual Offset Commit<br/>only after success or acknowledged DLQ"]
+  end
+  Evidence["Real Evidence in Logs<br/>PRODUCED · PROCESSED · runningAverage<br/>RETRY · DLQ · DLQ RECEIVED"]
+  Tests["Automated Tests<br/>8 passed"]
+  Git["Git Repository<br/>main branch + commit history"]
+  Presenter -->|"docker compose up"| Producer
+  Producer -->|"Python order"| Encoder
+  Encoder -->|"Avro binary<br/>acks=all + idempotence"| Orders
+  Orders -->|"poll by partition and offset"| Decoder
+  Decoder --> Processor
+  Processor --> Validate
+  Validate -->|"Success"| Average
+  Average --> Commit
+  Validate -->|"Temporary error"| Retry
+  Retry -->|"Retry processing"| Validate
+  Retry -->|"Retries exhausted"| DLQEncode
+  Validate -->|"Permanent error"| DLQEncode
+  DLQEncode -->|"Avro failed record"| DLQ
+  DLQ --> Monitor
+  DLQEncode -->|"DLQ delivery acknowledged"| Commit
+  Producer -.-> Evidence
+  Average -.-> Evidence
+  Retry -.-> Evidence
+  Monitor -.-> Evidence
+  Presenter --> Tests
+  Presenter --> Git
