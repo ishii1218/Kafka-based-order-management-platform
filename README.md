@@ -1,6 +1,6 @@
 # Kafka Avro Order Analytics Assignment
 
-This project implements the supplied Chapter 3 assignment as an isolated, Git-ready Docker Compose application.
+This project implements the Kafka-based system that produces and consumes order messages
 
 ## What it demonstrates
 
