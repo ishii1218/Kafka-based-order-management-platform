@@ -1,4 +1,4 @@
-# Kafka Avro Order Analytics Assignment
+# Real-time Kafka Order-processing Pipeline
 
 This project implements the Kafka-based system that produces and consumes order messages
 
